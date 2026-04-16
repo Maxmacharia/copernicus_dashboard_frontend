@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Copernicus Data Explorer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="app-header">
+        <h1>Copernicus Data Explorer</h1>
+    </header>
+
+    <main class="main-container">
+        <!-- Input Sidebar -->
+        <aside class="sidebar-input">
+            <div class="sidebar-section">
+                <label>Input Collection</label>
+                <select id="collection-select">
+                    <option value="SENTINEL2_L2A">Sentinel 2</option>
+                    <option value="SENTINEL1_GRD">Sentinel 1</option>
+                </select>
+            </div>
+
+            <div class="sidebar-section">
+                <label>Filter by Cloud Cover: <span id="cloud-val">20</span>%</label>
+                <input type="range" id="cloud-filter" min="0" max="100" step="10" value="20">
+            </div>
+
+            <div class="sidebar-section">
+                <label>Filter by Date</label>
+                <input type="date" id="start-date" value="2023-01-01">
+                <input type="date" id="end-date" value="2023-12-31">
+            </div>
+
+            <div class="sidebar-section">
+                <label>Select Bands</label>
+                <input type="text" id="bands-input" placeholder="e.g. B04, B03, B02">
+            </div>
+
+            <div class="sidebar-section">
+                <label>Filter by AOI</label>
+                <select id="draw-type">
+                    <option value="Polygon">Polygon</option>
+                    <option value="Box">Box</option>
+                    <option value="None">None</option>
+                </select>
+                <div class="upload-container">
+                    <label for="geojson-upload" class="upload-btn">Upload GeoJSON</label>
+                    <input type="file" id="geojson-upload" accept=".geojson,.json">
+                </div>
+            </div>
+
+            <button id="search-btn" class="primary-btn">Search</button>
+        </aside>
+
+        <!-- Map Area -->
+        <div id="map">
+            <!-- Layer Sidebar (Hoverable) -->
+            <div class="layer-sidebar">
+                <h3>Layers</h3>
+                <div id="layer-list">
+                    <label><input type="checkbox" checked id="base-layer-check"> Base Map (OSM)</label>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="app-footer">
+        <div class="footer-center">Geospatial Dashboard</div>
+        <div class="footer-right">2026</div>
+    </footer>
+
+    <script type="module" src="/main.js"></script>
+</body>
+</html>

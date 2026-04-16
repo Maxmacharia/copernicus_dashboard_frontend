@@ -1,0 +1,32 @@
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+body { background: white; color: black; display: flex; flex-direction: column; height: 100vh; }
+
+.app-header { border-bottom: 1px solid #ddd; padding: 15px; text-align: center; }
+.app-footer { border-top: 1px solid #ddd; padding: 10px 20px; display: flex; justify-content: center; position: relative; }
+.footer-right { position: absolute; right: 20px; }
+
+.main-container { display: flex; flex: 1; overflow: hidden; }
+
+.sidebar-input { width: 300px; border-right: 1px solid #ddd; padding: 20px; overflow-y: auto; }
+.sidebar-section { margin-bottom: 20px; }
+.sidebar-section label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 0.9em; }
+input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 5px; }
+
+#map { flex: 1; position: relative; background: #f9f9f9; }
+
+.primary-btn { background: black; color: white; border: none; padding: 12px; width: 100%; cursor: pointer; border-radius: 4px; font-weight: bold; }
+.primary-btn:hover { background: #333; }
+
+/* Layer Sidebar Hover Logic */
+.layer-sidebar {
+    position: absolute; top: 10px; right: 0; width: 40px; height: 150px; 
+    background: white; border: 1px solid #ddd; border-right: none;
+    z-index: 1000; overflow: hidden; transition: width 0.3s ease; padding: 10px;
+}
+.layer-sidebar:hover { width: 200px; }
+.layer-sidebar h3 { font-size: 0.8em; margin-bottom: 10px; }
+#layer-list label { display: block; font-size: 0.85em; margin-bottom: 5px; cursor: pointer; }
+
+.upload-btn { display: inline-block; padding: 6px; background: #eee; border: 1px solid #ccc; width: 100%; text-align: center; cursor: pointer; font-size: 0.8em; }
+#geojson-upload { display: none; }
+
