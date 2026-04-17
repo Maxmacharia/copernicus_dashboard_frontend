@@ -1,3 +1,5 @@
+import { API_BASE_URL } from './config.js';
+
 export class LayerExporter {
     constructor() {
         this.menu = null;
@@ -43,7 +45,7 @@ export class LayerExporter {
         alert(statusMsg);
 
         try {
-            const response = await fetch("http://127.0.0.1:8000/export", {
+            const response = await fetch(`${API_BASE_URL}/export`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(this.activeLayerData)
