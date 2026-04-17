@@ -12,6 +12,7 @@ import { fromLonLat, transformExtent } from 'ol/proj.js';
 import { RasterCalculator } from './calculator.js';
 import { LayerExporter } from './exporter.js';
 import 'ol/ol.css';
+import { API_BASE_URL } from './config.js';
 
 let aoi = null;
 let currentDraw;
@@ -83,7 +84,7 @@ async function runSpectralCalculation(calcData) {
         dates: lastRaster.dates
     };
     try {
-        const response = await fetch("http://127.0.0.1:8000/calculate", {
+        const response = await fetch(`${API_BASE_URL}/calculate`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
@@ -156,7 +157,7 @@ async function search() {
         aoi: aoi
     };
     try {
-        const response = await fetch("http://127.0.0.1:8000/search", {
+        const response = await fetch(`${API_BASE_URL}/search`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
