@@ -11,7 +11,6 @@
     </header>
 
     <main class="main-container">
-        <!-- Input Sidebar -->
         <aside class="sidebar-input">
             <div class="sidebar-section">
                 <label>Input Collection</label>
@@ -51,15 +50,59 @@
             </div>
 
             <button id="search-btn" class="primary-btn">Search</button>
+
+            <button id="open-calc-btn" class="secondary-btn" style="margin-top: 10px; background: #444; color: white; border: none; padding: 12px; width: 100%; cursor: pointer; border-radius: 4px; font-weight: bold;">
+                Calculate a spectral index
+            </button>
+
+            <div id="calc-modal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Raster Calculator</h2>
+                    </div>
+                    <div class="modal-body">
+                        <div class="calc-section">
+                            <label>Available Rasters & Bands (Double-click to add)</label>
+                            <div id="calc-layer-list" class="scroll-box"></div>
+                        </div>
+
+                        <div class="calc-row">
+                            <div class="input-group">
+                                <label>Index Name</label>
+                                <input type="text" id="index-name" placeholder="e.g., My_NDVI">
+                            </div>
+                        </div>
+
+                        <div class="calc-section">
+                            <label>Arithmetic Operators</label>
+                            <div class="operators">
+                                <button class="op-btn">+</button>
+                                <button class="op-btn">-</button>
+                                <button class="op-btn">*</button>
+                                <button class="op-btn">/</button>
+                                <button class="op-btn">(</button>
+                                <button class="op-btn">)</button>
+                            </div>
+                            <label>Expression Space</label>
+                            <textarea id="calc-expression" placeholder='e.g. ("B08" - "B04") / ("B08" + "B04")'></textarea>
+                            <div id="calc-error" class="error-msg"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="run-calc-btn" class="primary-btn">Run</button>
+                        <button id="close-calc-btn" class="secondary-btn">Close</button>
+                    </div>
+                </div>
+            </div>
         </aside>
 
-        <!-- Map Area -->
         <div id="map">
-            <!-- Layer Sidebar (Hoverable) -->
             <div class="layer-sidebar">
                 <h3>Layers</h3>
                 <div id="layer-list">
-                    <label><input type="checkbox" checked id="base-layer-check"> Base Map (OSM)</label>
+                    <label>
+                        <input type="checkbox" checked id="base-layer-check"> Base Map (OSM)
+                    </label>
                 </div>
             </div>
         </div>
