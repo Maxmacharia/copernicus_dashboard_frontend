@@ -34,7 +34,7 @@ export class LayerExporter {
         const modal = document.createElement('div');
         modal.className = 'modal';
         modal.style.display = 'block';
-        const title = type === 'properties' ? `${layerData.name} properties` : `${layerData.name} visualization parameters`;
+        const title = type === 'properties' ? `${layerData.name} Properties` : `${layerData.name} Styling`;
         
         modal.innerHTML = `
             <div class="modal-content">
@@ -59,17 +59,49 @@ export class LayerExporter {
     }
 
     async initiateDownload(layerData) {
-        alert(`Exporting: ${layerData.name}\nProcessing GeoTIFF on server...`);
-        const res = await fetch(`${API_BASE_URL}/export`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(layerData)
-        });
-        const blob = await res.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${layerData.name.replace(/\s+/g, '_')}.tif`;
-        a.click();
+        console.log(`[EXPORT] Starting download for: ${layerData.name}`);
+        
+        // Step 1: Initial Message
+        const statusDiv = document.createElement('div');
+        statusDiv.style.cssText = "position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:black; color:white; padding:15px 25px; border-radius:30px; z-index:9999; font-weight:bold; box-shadow: 0 4px 15px rgba(0,0,0,0.3);";
+        statusDiv.innerText = "Starting download...";
+        document.body.appendChild(statusDiv);
+
+        try {
+            // Step 2: Change message for the long-running process
+            setTimeout(() => {
+                if (statusDiv) statusDiv.innerText = "Download may take a while. Please wait...";
+            }, 2000);
+
+            const res = await fetch(`${API_BASE_URL}/export`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(layerData)
+            });
+
+            if (!res.ok) throw new Error("Server failed to generate GeoTIFF.");
+
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${layerData.name.replace(/\s+/g, '_')}.tif`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+
+            // Step 3: Success message
+            statusDiv.style.background = "#28a745"; // Green
+            statusDiv.innerText = "Download complete!";
+            
+            setTimeout(() => statusDiv.remove(), 4000);
+
+        } catch (err) {
+            console.error(err);
+            statusDiv.style.background = "#dc3545"; // Red
+            statusDiv.innerText = "Download failed.";
+            setTimeout(() => statusDiv.remove(), 5000);
+            alert("Error exporting layer. The area might be too large for a direct download.");
+        }
     }
 }

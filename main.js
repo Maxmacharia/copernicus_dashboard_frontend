@@ -34,23 +34,16 @@ window.olMap = map;
 window.map = map;
 
 window.applyLayerStyle = function(layerId, newBase64, opacity = 1) {
-    console.log(`[STYLE-TRACE] Triggered applyLayerStyle for layer: ${layerId}`);
-    
-    const map = window.olMap;
-    const layers = map.getLayers().getArray();
+    console.log(`[STYLE-TRACE] Triggering instant update for: ${layerId}`);
+    const layers = window.olMap.getLayers().getArray();
     const targetLayer = layers.find(l => l.get('id') === layerId);
 
     if (!targetLayer) {
-        console.warn(`[STYLE-TRACE] Layer with ID ${layerId} not found in map stack!`);
+        console.warn(`[STYLE-TRACE] Layer ${layerId} not found.`);
         return;
     }
 
-    console.log(`[STYLE-TRACE] Target layer found. Retreiving image extent...`);
     const extent = targetLayer.getSource().getImageExtent();
-    console.log(`[STYLE-TRACE] Layer Extent:`, extent);
-    
-    // Create a fresh source with a cache-busting timestamp
-    console.log(`[STYLE-TRACE] Generating new ImageStatic source with cache-buster.`);
     const newSource = new ImageStatic({
         url: newBase64,
         imageExtent: extent,
@@ -58,19 +51,10 @@ window.applyLayerStyle = function(layerId, newBase64, opacity = 1) {
         crossOrigin: 'anonymous'
     });
     
-    // Assign the source and apply opacity
-    console.log(`[STYLE-TRACE] Committing new source and setting opacity to ${opacity}`);
     targetLayer.setSource(newSource);
     targetLayer.setOpacity(opacity);
-    
-    // Force OpenLayers to re-render the pixels immediately
-    console.log(`[STYLE-TRACE] Invoking .changed() to force OpenLayers rendering loop.`);
     targetLayer.changed(); 
-    newSource.changed();
-    
-    console.log("[STYLE-TRACE] Completed. Check map for visual replacement.");
 };
-
 
 window.toggleRes = function(id) {
     map.getLayers().getArray().forEach(layer => {
@@ -93,30 +77,47 @@ function addRasterToMap(base64, aoiData, name, metadata) {
     layer.set('id', layerId);
     map.addLayer(layer);
 
-    layerMetadataStore[layerId] = { ...metadata, id: layerId, name: name, aoi: aoiData };
+    // CRITICAL FIX: Store the raw image base64 in metadata so Styling.js can use it locally
+    layerMetadataStore[layerId] = { 
+        ...metadata, 
+        id: layerId, 
+        name: name, 
+        aoi: aoiData,
+        image: base64 
+    };
 
+        // Create the container for the layer item
     const list = document.getElementById('layer-list');
-    const label = document.createElement('label');
+    const label = document.createElement('div');
+    label.className = "layer-item";
     
-    // Apply styling here to facilitate scannability and spacing
+    // Updated CSS Styles to bring checkbox and name together
     label.style.display = "flex";
-    label.style.justifyContent = "space-between";
     label.style.alignItems = "center";
-    label.style.marginBottom = "5px";
-    label.style.cursor = "pointer";
+    label.style.gap = "10px";          // Controls the exact distance between box and text
+    label.style.padding = "8px 12px";
+    label.style.cursor = "context-menu";
+    label.style.width = "100%";        // Ensures it fills the sidebar width
+    label.style.borderBottom = "1px solid #f0f0f0";
 
-    // 🔥 ISSUE 2 FIX: Checkbox placed on the right of the layer name
+    // Updated HTML: Removed ellipsis and fixed width issues
     label.innerHTML = `
-    	<input type="checkbox" checked onchange="window.toggleRes('${layerId}')">
-    	<span>${name}</span>
-	`;
-
+        <input type="checkbox" checked 
+               style="width: auto; margin: 0; cursor: pointer;" 
+               onchange="window.toggleRes('${layerId}')">
+        <span style="font-size: 0.9em; 
+                     color: #333; 
+                     white-space: nowrap; 
+                     font-weight: 500;
+                     user-select: none;">${name}</span>
+    `;
 
     label.oncontextmenu = (e) => {
         e.preventDefault();
         exporter.showMenu(e.clientX, e.clientY, layerMetadataStore[layerId]);
     };
     list.appendChild(label);
+
 }
 
 const calculator = new RasterCalculator(
@@ -127,7 +128,13 @@ const calculator = new RasterCalculator(
 async function runSpectralCalculation(calcData) {
     if (activeRasters.length === 0) return false;
     const lastRaster = activeRasters[activeRasters.length - 1];
-    const payload = { expression: calcData.expression, name: calcData.name, aoi: aoi, collection: lastRaster.collection, dates: lastRaster.dates };
+    const payload = { 
+        expression: calcData.expression, 
+        name: calcData.name, 
+        aoi: aoi, 
+        collection: lastRaster.collection, 
+        dates: lastRaster.dates 
+    };
 
     try {
         const response = await fetch(`${API_BASE_URL}/calculate`, {
@@ -137,35 +144,97 @@ async function runSpectralCalculation(calcData) {
         });
         const data = await response.json();
         if (data.image) {
-            addRasterToMap(data.image, data.aoi, calcData.name, { type: 'calc', collection: lastRaster.collection, dates: lastRaster.dates, expression: payload.expression, bands: [calcData.name] });
+            addRasterToMap(data.image, data.aoi, calcData.name, { 
+                type: 'calc', 
+                collection: lastRaster.collection, 
+                dates: lastRaster.dates, 
+                expression: payload.expression, 
+                bands: ["Index"] 
+            });
             return true;
         }
     } catch (err) {
+        console.error("Calculation failed", err);
         return false;
     }
 }
+
+async function search() {
+    if (!aoi) {
+        alert("Please draw or upload an Area of Interest (AOI).");
+        return;
+    }
+    const btn = document.getElementById('search-btn');
+    const originalText = btn.innerText;
+    btn.innerText = "Processing...";
+    btn.disabled = true;
+
+    const payload = {
+        collection: document.getElementById('collection-select').value,
+        cloud_cover: parseInt(document.getElementById('cloud-filter').value),
+        start_date: document.getElementById('start-date').value,
+        end_date: document.getElementById('end-date').value,
+        bands: document.getElementById('bands-input').value.split(',').map(b => b.trim()).filter(b => b),
+        aoi: aoi
+    };
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/search`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        if (data.image) {
+            const displayName = `${payload.collection} (${payload.start_date})`;
+            addRasterToMap(data.image, data.aoi, displayName, { 
+                type: 'search', 
+                collection: payload.collection, 
+                dates: [payload.start_date, payload.end_date], 
+                bands: payload.bands 
+            });
+            activeRasters.push({ 
+                name: displayName, 
+                bands: payload.bands, 
+                collection: payload.collection, 
+                dates: [payload.start_date, payload.end_date] 
+            });
+        }
+    } catch (err) {
+        alert("Search failed. Check backend logs.");
+    } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
+    }
+}
+
+document.getElementById('search-btn').addEventListener('click', search);
 
 document.getElementById('cloud-filter').addEventListener('input', (e) => {
     document.getElementById('cloud-val').innerText = e.target.value;
 });
 
-// 🔥 ISSUE 1 FIX: End date should never be earlier than Start Date
 const startDateInput = document.getElementById('start-date');
 const endDateInput = document.getElementById('end-date');
 
-startDateInput.addEventListener('change', () => {
-    if (endDateInput.value < startDateInput.value) {
-        endDateInput.value = startDateInput.value;
-    }
-    endDateInput.min = startDateInput.value;
-});
+function validateDates() {
+    const start = startDateInput.value;
+    const end = endDateInput.value;
 
-endDateInput.addEventListener('change', () => {
-    if (endDateInput.value < startDateInput.value) {
+    // Ensure the calendar picker for End Date doesn't allow picking past dates
+    endDateInput.min = start;
+
+    // Only compare if both dates are actually filled in
+    if (start && end && end < start) {
         alert("End date cannot be earlier than start date!");
-        endDateInput.value = startDateInput.value;
+        endDateInput.value = start; // Force sync
     }
-});
+}
+
+// Listen to both so the user can't "sneak" an invalid date in
+startDateInput.addEventListener('change', validateDates);
+endDateInput.addEventListener('change', validateDates);
+
 
 document.getElementById('draw-type').addEventListener('change', (e) => {
     map.removeInteraction(currentDraw);
@@ -179,7 +248,10 @@ document.getElementById('draw-type').addEventListener('change', (e) => {
     currentDraw = new Draw({ source: vectorSource, type: drawType, geometryFunction });
     map.addInteraction(currentDraw);
     currentDraw.on('drawend', (event) => {
-        aoi = new GeoJSON().writeGeometryObject(event.feature.getGeometry(), { featureProjection: 'EPSG:3857', dataProjection: 'EPSG:4326' });
+        aoi = new GeoJSON().writeGeometryObject(event.feature.getGeometry(), { 
+            featureProjection: 'EPSG:3857', 
+            dataProjection: 'EPSG:4326' 
+        });
     });
 });
 
@@ -195,7 +267,10 @@ document.getElementById('geojson-upload').addEventListener('change', (e) => {
         vectorSource.addFeatures(features);
         if (features.length > 0) {
             map.getView().fit(vectorSource.getExtent(), { padding: [50, 50, 50, 50] });
-            aoi = format.writeGeometryObject(features[0].getGeometry(), { featureProjection: 'EPSG:3857', dataProjection: 'EPSG:4326' });
+            aoi = format.writeGeometryObject(features[0].getGeometry(), { 
+                featureProjection: 'EPSG:3857', 
+                dataProjection: 'EPSG:4326' 
+            });
         }
     };
     reader.readAsText(file);
@@ -204,38 +279,3 @@ document.getElementById('geojson-upload').addEventListener('change', (e) => {
 document.getElementById('base-layer-check').addEventListener('change', (e) => {
     baseLayer.setVisible(e.target.checked);
 });
-
-async function search() {
-    if (!aoi) {
-        alert("Please draw AOI.");
-        return;
-    }
-    const btn = document.getElementById('search-btn');
-    btn.innerText = "Processing...";
-    const payload = {
-        collection: document.getElementById('collection-select').value,
-        cloud_cover: parseInt(document.getElementById('cloud-filter').value),
-        start_date: document.getElementById('start-date').value,
-        end_date: document.getElementById('end-date').value,
-        bands: document.getElementById('bands-input').value.split(',').map(b => b.trim()).filter(b => b),
-        aoi: aoi
-    };
-    try {
-        const response = await fetch(`${API_BASE_URL}/search`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-        });
-        const data = await response.json();
-        if (data.image) {
-            const displayName = `${payload.collection} (${payload.start_date})`;
-            addRasterToMap(data.image, data.aoi, displayName, { type: 'search', collection: payload.collection, dates: [payload.start_date, payload.end_date], bands: payload.bands });
-            activeRasters.push({ name: displayName, bands: payload.bands, collection: payload.collection, dates: [payload.start_date, payload.end_date] });
-        }
-    } catch (err) {
-        alert("Search failed.");
-    } finally {
-        btn.innerText = "Search";
-    }
-}
-document.getElementById('search-btn').addEventListener('click', search);
