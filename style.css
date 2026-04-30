@@ -13,74 +13,117 @@ input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius
 
 #map { flex: 1; position: relative; background: #f9f9f9; }
 
-.primary-btn { background: black; color: white; border: none; padding: 12px; width: 100%; cursor: pointer; border-radius: 4px; font-weight: bold; }
-.primary-btn:hover { background: #333; }
-
-/* Improved Layer Sidebar */
-.layer-sidebar {
-    position: absolute; 
-    top: 10px; 
-    right: 10px; 
-    width: 45px; 
-    max-height: 80vh; 
-    background: white; 
-    border: 1px solid #ccc; 
-    z-index: 1000; 
-    overflow-x: hidden;
-    overflow-y: auto; 
-    transition: width 0.2s ease-in-out; 
-    padding: 10px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-}
-
-.layer-sidebar:hover { width: 250px; }
-.layer-sidebar h3 { font-size: 0.9em; margin-bottom: 12px; white-space: nowrap; }
-
-#layer-list { display: flex; flex-direction: column; gap: 8px; }
-#layer-list label { 
-    display: flex; 
-    align-items: center; 
-    font-size: 0.85em; 
+/* Shared Button Styles */
+.primary-btn, #open-calc-btn { 
+    background: black; 
+    color: white; 
+    border: none; 
+    padding: 12px; 
+    width: 100%; 
     cursor: pointer; 
-    white-space: nowrap; 
-    padding: 6px;
-    border-radius: 4px;
-}
-#layer-list label:hover { background: #f0f0f0; }
-
-/* Custom Context Menu */
-.context-menu {
-    position: fixed;
-    z-index: 3000;
-    background: white;
-    border: 1px solid #ccc;
-    box-shadow: 2px 2px 8px rgba(0,0,0,0.15);
-    padding: 5px 0;
-    border-radius: 4px;
-    min-width: 150px;
-}
-.context-menu-item {
-    padding: 10px 15px;
-    cursor: pointer;
-    font-size: 13px;
+    border-radius: 4px; 
+    font-weight: bold; 
     transition: background 0.2s;
 }
+.primary-btn:hover, #open-calc-btn:hover { background: #333; }
+
+.secondary-btn { 
+    background: #f0f0f0; 
+    color: #333; 
+    border: 1px solid #ccc; 
+    padding: 12px; 
+    width: 100%; 
+    cursor: pointer; 
+    border-radius: 4px; 
+    font-weight: bold; 
+}
+
+/* Layer Sidebar */
+.layer-sidebar {
+    position: absolute; top: 10px; right: 10px; width: 45px; 
+    max-height: 80vh; background: white; border: 1px solid #ccc; 
+    z-index: 1000; overflow-x: hidden; overflow-y: auto; 
+    transition: width 0.2s; padding: 10px; border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+.layer-sidebar:hover { width: 250px; }
+
+/* Context Menu */
+.context-menu {
+    position: fixed; z-index: 3000; background: white; 
+    border: 1px solid #ccc; box-shadow: 2px 2px 8px rgba(0,0,0,0.15); 
+    padding: 5px 0; border-radius: 4px; min-width: 150px;
+}
+.context-menu-item { padding: 10px 15px; cursor: pointer; font-size: 13px; }
 .context-menu-item:hover { background: #0078d7; color: white; }
 
-/* Modal & Other Styles */
-.upload-btn { display: inline-block; padding: 6px; background: #eee; border: 1px solid #ccc; width: 100%; text-align: center; cursor: pointer; font-size: 0.8em; }
-#geojson-upload { display: none; }
+/* Properties & Histogram */
+.prop-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #eee; font-size: 13px; }
+.histogram-container { 
+    height: 120px; display: flex; align-items: flex-end; gap: 2px; 
+    margin-top: 15px; border-left: 2px solid #ccc; border-bottom: 2px solid #ccc; 
+    background: #fafafa; padding: 5px;
+}
+.hist-bar { background: #0078d7; flex: 1; min-width: 2px; }
+
+/* Modals & Raster Calculator Improvements */
 .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
-.modal-content { background: white; margin: 5% auto; padding: 20px; width: 500px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-.scroll-box { border: 1px solid #ddd; height: 150px; overflow-y: auto; padding: 10px; margin-bottom: 10px; border-radius: 4px; }
-.calc-row { display: flex; justify-content: flex-end; margin: 15px 0; }
-.input-group { width: 50%; }
-.operators { display: flex; gap: 5px; margin-bottom: 10px; }
-.op-btn { flex: 1; padding: 10px; cursor: pointer; background: #eee; border: 1px solid #ccc; border-radius: 4px; font-weight: bold; }
-#calc-expression { width: 100%; height: 80px; font-family: monospace; padding: 10px; border-radius: 4px; border: 1px solid #ccc; resize: none; }
-.error-msg { color: red; font-size: 0.8em; margin-top: 5px; min-height: 1em; }
-.modal-footer { display: flex; justify-content: space-between; margin-top: 20px; }
-.modal-footer .primary-btn, .modal-footer .secondary-btn { width: 100px; }
-.band-item { cursor: pointer; padding: 4px; border-bottom: 1px solid #f0f0f0; font-size: 0.9em; }
-.band-item:hover { background: #f9f9f9; }
+.modal-content { 
+    background: white; 
+    margin: 3% auto; 
+    padding: 25px; 
+    width: 650px; /* Wider to accommodate complex expressions */
+    border-radius: 8px; 
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+#calc-expression { 
+    width: 100%; 
+    height: 180px; /* Larger area for math algebra */
+    font-family: 'Courier New', monospace; 
+    padding: 15px; 
+    font-size: 1.1em;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    resize: none;
+    margin-top: 10px;
+}
+#calc-expression:focus { border-color: #000; outline: none; }
+
+.operators { 
+    display: grid; 
+    grid-template-columns: repeat(6, 1fr); 
+    gap: 10px; 
+    margin: 20px 0; 
+}
+.op-btn { 
+    padding: 15px; 
+    font-size: 1.3em; 
+    font-weight: bold;
+    background: #f4f4f4;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.op-btn:hover { background: #e0e0e0; border-color: #999; }
+
+.scroll-box { border: 1px solid #ddd; height: 180px; overflow-y: auto; padding: 10px; margin-bottom: 10px; border-radius: 4px; }
+
+.band-item { 
+    cursor: pointer; /* Clickable icon for bands */
+    padding: 8px 12px; 
+    border-bottom: 1px solid #f0f0f0; 
+    font-size: 0.95em;
+    transition: background 0.2s;
+}
+.band-item:hover { background: #eef7ff; color: #0078d7; font-weight: bold; }
+
+.style-row { margin-bottom: 15px; }
+.style-row label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.85em; }
+
+.range-inputs { display: flex; gap: 8px; }
+.range-inputs input { width: 50%; }
+
+.error-msg { color: #d93025; font-size: 0.85em; margin-top: 8px; font-weight: bold; }

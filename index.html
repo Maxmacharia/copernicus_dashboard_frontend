@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Copernicus Data Explorer</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -33,17 +34,17 @@
 
             <div class="sidebar-section">
                 <label>Select Bands</label>
-                <input type="text" id="bands-input" placeholder="e.g. B04, B03, B02">
+                <input type="text" id="bands-input" placeholder="e.g. B04, B03, B02" value="B04, B03, B02">
             </div>
 
             <div class="sidebar-section">
                 <label>Filter by AOI</label>
                 <select id="draw-type">
+                    <option value="None">None</option>
                     <option value="Polygon">Polygon</option>
                     <option value="Box">Box</option>
-                    <option value="None">None</option>
                 </select>
-                <div class="upload-container">
+                <div class="upload-container" style="margin-top: 10px;">
                     <label for="geojson-upload" class="upload-btn">Upload GeoJSON</label>
                     <input type="file" id="geojson-upload" accept=".geojson,.json">
                 </div>
@@ -51,10 +52,11 @@
 
             <button id="search-btn" class="primary-btn">Search</button>
 
-            <button id="open-calc-btn" class="secondary-btn" style="margin-top: 10px; background: #444; color: white; border: none; padding: 12px; width: 100%; cursor: pointer; border-radius: 4px; font-weight: bold;">
+            <button id="open-calc-btn" class="secondary-btn" style="margin-top: 10px;">
                 Calculate a spectral index
             </button>
 
+            <!-- Raster Calculator Modal -->
             <div id="calc-modal" class="modal">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -65,14 +67,12 @@
                             <label>Available Rasters & Bands (Double-click to add)</label>
                             <div id="calc-layer-list" class="scroll-box"></div>
                         </div>
-
                         <div class="calc-row">
                             <div class="input-group">
                                 <label>Index Name</label>
                                 <input type="text" id="index-name" placeholder="e.g., My_NDVI">
                             </div>
                         </div>
-
                         <div class="calc-section">
                             <label>Arithmetic Operators</label>
                             <div class="operators">
