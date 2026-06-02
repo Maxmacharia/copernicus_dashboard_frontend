@@ -30,6 +30,33 @@ const map = new Map({
     view: new View({ center: fromLonLat([36.8, -1.3]), zoom: 10 })
 });
 
+// Append directly inside main.js near current AOI tracking states
+// Syncs internal OpenLayers bounding coordinates safely out to the Python compiler runtime
+setInterval(() => {
+    window.currentDashboardAOI = aoi;
+}, 500);
+
+// Safe binding layer mapping out the native layer loader logic
+window.addRasterToMapGlobalHook = (base64Img, rawGeoJSONStr, name, rawMetadataJSONStr) => {
+    try {
+        const parsedAOI = JSON.parse(rawGeoJSONStr);
+        const parsedMeta = JSON.parse(rawMetadataJSONStr);
+        
+        // Push layer securely into active standard OpenLayers stack arrays
+        addRasterToMap(base64Img, parsedAOI, name, parsedMeta);
+        
+        activeRasters.push({
+            name: name,
+            bands: parsedMeta.bands || ["B04", "B03", "B02"],
+            collection: parsedMeta.collection,
+            dates: parsedMeta.dates
+        });
+    } catch (e) {
+        console.error("Failed to map pipeline object safely:", e);
+    }
+};
+
+
 window.olMap = map;
 window.map = map;
 
@@ -252,6 +279,8 @@ document.getElementById('draw-type').addEventListener('change', (e) => {
             featureProjection: 'EPSG:3857', 
             dataProjection: 'EPSG:4326' 
         });
+	window.currentDashboardAOI = aoi;
+	console.log("[AOI-TRACE] Geometric boundaries locked globally into window scope:", window.currentDashboardAOI);
     });
 });
 
@@ -271,6 +300,8 @@ document.getElementById('geojson-upload').addEventListener('change', (e) => {
                 featureProjection: 'EPSG:3857', 
                 dataProjection: 'EPSG:4326' 
             });
+	    window.currentDashboardAOI = aoi;
+	    console.log("[AOI-TRACE] Uploaded shape locked globally:", window.currentDashboardAOI);
         }
     };
     reader.readAsText(file);
@@ -278,4 +309,25 @@ document.getElementById('geojson-upload').addEventListener('change', (e) => {
 
 document.getElementById('base-layer-check').addEventListener('change', (e) => {
     baseLayer.setVisible(e.target.checked);
+});
+
+// Initialization entry point for the custom code workspace extensions
+import { CodeEditorManager } from './editor.js';
+
+document.addEventListener("DOMContentLoaded", () => {
+    const workspace = new CodeEditorManager();
+    const toggleBtn = document.getElementById("toggle-editor-view-btn");
+    const container = document.getElementById("code-editor-container");
+
+    toggleBtn.addEventListener("click", () => {
+        if (container.style.display === "none" || !container.style.display) {
+            container.style.display = "flex";
+            toggleBtn.innerText = "❌ Close Python Workspace";
+            toggleBtn.style.background = "#b81414";
+        } else {
+            container.style.display = "none";
+            toggleBtn.innerText = "💻 Open Python Workspace";
+            toggleBtn.style.background = "#0078d7";
+        }
+    });
 });

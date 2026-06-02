@@ -127,3 +127,154 @@ input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius
 .range-inputs input { width: 50%; }
 
 .error-msg { color: #d93025; font-size: 0.85em; margin-top: 8px; font-weight: bold; }
+
+/* Custom CSS Extensions for the Integrated Python Workspace */
+#toggle-editor-view-btn {
+    background: #0078d7;
+    color: white;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: bold;
+    margin-top: 10px;
+    transition: background 0.2s;
+}
+#toggle-editor-view-btn:hover { background: #005a9e; }
+
+#code-editor-container {
+    width: 500px;
+    border-left: 1px solid #ddd;
+    background: #1e1e1e;
+    display: none; /* Managed dynamically via toggle event hook */
+    flex-direction: column;
+    height: 100%;
+}
+
+#monaco-workspace {
+    flex: 2;
+    width: 100%;
+    border-bottom: 2px solid #333;
+}
+
+.console-output-pane {
+    flex: 1;
+    background: #000;
+    color: #0f0;
+    font-family: 'Courier New', monospace;
+    padding: 10px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.console-header {
+    font-size: 0.85em;
+    color: #aaa;
+    border-bottom: 1px solid #222;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+#editor-console {
+    flex: 1;
+    margin: 0;
+    overflow-y: auto;
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 16px;
+}
+
+.editor-header {
+    background: #2d2d2d;
+    color: #fff;
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #3c3c3c;
+}
+
+.editor-header h3 { font-size: 0.95em; font-weight: normal; font-family: sans-serif; }
+.editor-actions { display: flex; gap: 8px; }
+
+.editor-btn {
+    border: none;
+    padding: 6px 12px;
+    border-radius: 3px;
+    font-weight: bold;
+    font-size: 11px;
+    cursor: pointer;
+}
+.editor-btn.run { background: #4caf50; color: white; }
+.editor-btn.run:disabled { background: #555; color: #aaa; cursor: not-allowed; }
+.editor-btn.clear { background: #f44336; color: white; }
+
+/* Multi-Tab Analytics Workspace Layout */
+.output-tabs {
+    display: flex;
+    background: #252526;
+    border-bottom: 1px solid #3c3c3c;
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    color: #aaa;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    border-right: 1px solid #3c3c3c;
+}
+
+.tab-btn.active {
+    background: #1e1e1e;
+    color: #fff;
+    border-bottom: 2px solid #0078d7;
+}
+
+.tab-content {
+    display: none;
+    flex: 1;
+    overflow: auto;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.tab-content.active { display: block; }
+
+/* In-Browser Graphics Renderer */
+#chart-render-target {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #fff;
+    min-height: 180px;
+}
+
+#chart-render-target img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+/* Styled Analytical Tables */
+.dataframe-container { width: 100%; overflow-x: auto; }
+.dataframe-container table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #fff;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+.dataframe-container th { background: #333; color: #0078d7; padding: 6px; border: 1px solid #444; }
+.dataframe-container td { padding: 6px; border: 1px solid #444; background: #222; text-align: right; }
+.dataframe-container tr:hover td { background: #2a2a2a; }
