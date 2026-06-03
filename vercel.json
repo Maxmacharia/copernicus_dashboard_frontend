@@ -1,6 +1,4 @@
 {
-  "version": 2,
-  "cleanUrls": true,
   "headers": [
     {
       "source": "/vendor/pyodide/(.*)\\.js",
@@ -36,11 +34,6 @@
           "value": "same-origin"
         }
       ]
-    }
-  ],
-  "routes": [
-    {
-      "handle": "filesystem"
     }
   ]
 }
