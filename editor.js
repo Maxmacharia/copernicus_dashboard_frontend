@@ -82,9 +82,9 @@ export class CodeEditorManager {
             });
 
             this.appendLog("Monaco compiled.\nBooting offline Pyodide processing core...");
-            await this.loadScript("./vendor/pyodide/pyodide.js");
+            await this.loadScript("/vendor/pyodide/pyodide.js");
             
-            this.pyodide = await window.loadPyodide({ indexURL: "./vendor/pyodide/" });
+            this.pyodide = await window.loadPyodide({ indexURL: "/vendor/pyodide/" });
             
             this.appendLog("Pyodide Core mounted. Pre-installing standard packages (Numpy, Pandas, Matplotlib, Micropip)...");
             await this.pyodide.loadPackage(["numpy", "pandas", "matplotlib", "micropip"]);

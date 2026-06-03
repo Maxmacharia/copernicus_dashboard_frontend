@@ -1,7 +1,18 @@
 {
+  "version": 2,
+  "cleanUrls": true,
   "headers": [
     {
       "source": "/vendor/pyodide/(.*)\\.js",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/javascript"
+        }
+      ]
+    },
+    {
+      "source": "/vendor/pyodide/(.*)\\.asm.js",
       "headers": [
         {
           "key": "Content-Type",
@@ -25,6 +36,11 @@
           "value": "same-origin"
         }
       ]
+    }
+  ],
+  "routes": [
+    {
+      "handle": "filesystem"
     }
   ]
 }
