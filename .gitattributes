@@ -1,2 +1,4 @@
 vendor/pyodide-0.29.4.tar.bz2 filter=lfs diff=lfs merge=lfs -text
 vendor/pyodide/python_flint-0.8.0-cp313-cp313-pyemscripten_2025_0_wasm32.whl filter=lfs diff=lfs merge=lfs -text
+*.tar.bz2 filter=lfs diff=lfs merge=lfs -text
+*.whl filter=lfs diff=lfs merge=lfs -text
