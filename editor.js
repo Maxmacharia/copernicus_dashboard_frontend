@@ -63,8 +63,8 @@ export class CodeEditorManager {
     async loadDependencies() {
         try {
             this.appendLog("Loading local Monaco core dependencies...");
-            await this.loadScript("./vendor/monaco/vs/loader.js");
-            window.require.config({ paths: { 'vs': './vendor/monaco/vs' } });
+            await this.loadScript("/vendor/monaco/vs/loader.js");
+            window.require.config({ paths: { 'vs': '/vendor/monaco/vs' } });
             
             await new Promise((resolve, reject) => {
                 window.require(['vs/editor/editor.main'], () => {
